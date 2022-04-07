@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'Login.dart';
 import 'Home.dart';
+import 'postinternet.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -14,6 +15,8 @@ class MyApp extends StatelessWidget{
       routes: {
         Login.nameRoute: (context)=>const Login(),
         Home.nameRoute:(context)=>const Home(),
+       '/post':(context)=>const PostInternet(),
+        //ListPicture.nameRoute:(context)=>const ListPicture(),
       },
     );
   }

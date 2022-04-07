@@ -1,8 +1,9 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'Login.dart';
-import 'package:http/http.dart' as http;
 import 'dart:async';
+import 'models/Poster.dart';
+import 'Login.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 class Home extends StatelessWidget{
   const Home({Key?key}): super(key:key);
   static final nameRoute = '/Home';
@@ -22,44 +23,46 @@ class MyHome extends StatefulWidget{
   }
 }
 class _MyHome extends State<MyHome>{
-  late Future<Album> album;
+  late Future<List<Poster>> _futurePoster;
   @override
   void initState() {
     super.initState();
-    album = fetchAlbum();
+    _futurePoster = fetchPosters(http.Client());
   }
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      child: FutureBuilder<Album>(
-        future: album,
+      child: FutureBuilder<List<Poster>>(
+        future: _futurePoster,
         builder: (context,abc){
           if(abc.hasData){
             return Center(
                 child: Padding(
-                    padding: EdgeInsets.all(20) ,
-                    child: DataTable(
-                      columns: [
-
-                        DataColumn(label: Text('userId')),
-                        DataColumn(label: Text('id')),
-                        DataColumn(label: Text('title')),
-                        DataColumn(label: Text('content')),
-                      ],
-                      rows: [
-                        DataRow(cells: [
-                          DataCell(Text(abc.data!.id.toString())),
-                          DataCell(Text(abc.data!.userId.toString())),
-                          DataCell(Text(abc.data!.title)),
-                          DataCell(Text(abc.data!.body)),
-                        ])
-                      ],
-                    ),
+                  padding: EdgeInsets.all(20) ,
+                  child: DataTable(
+                    columns: [
+                      DataColumn(label: Text('userId')),
+                      DataColumn(label: Text('id')),
+                      DataColumn(label: Text('title')),
+                      DataColumn(label: Text('content')),
+                    ],
+                    rows: List<DataRow>.generate(
+                      abc.data!.length,
+                          (index) => DataRow(
+                          cells: <DataCell>[
+                            DataCell(Text(abc.data![index].userId.toString())),
+                            DataCell(Text(abc.data![index].id.toString())),
+                            DataCell(Text(abc.data![index].title)),
+                            DataCell(Text(abc.data![index].body)),
+                          ]
+                      ),
+                    )  ,
+                  ),
                 )
-            );
+            ) ;
           }else if(abc.hasError){
-            return Text('${abc.hasError}');
+            return Text('${abc.error}');
           }
           return const CircularProgressIndicator();
         },
@@ -68,32 +71,3 @@ class _MyHome extends State<MyHome>{
   }
 }
 
-class Album{
-  final int userId;
-  final int id;
-  final String title;
-  final String body;
-
-  const Album({
-    required this.userId,
-    required this.id,
-    required this.title,
-    required this.body,
-});
-  factory Album.fromJson(Map<String, dynamic> json){
-    return  Album(
-      userId: json['userId'],
-      id: json['id'],
-      title: json['title'],
-      body: json['body'],
-    );
-  }
-}
-Future<Album> fetchAlbum() async{
-  final response = await http.get(Uri.parse('https://jsonplaceholder.typicode.com/posts/2'));
-      if(response.statusCode == 200){
-        return Album.fromJson(jsonDecode(response.body));
-      }else{
-        throw Exception('failed to load album');
-      }
-}
