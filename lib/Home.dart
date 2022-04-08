@@ -25,6 +25,12 @@ class MyHome extends StatefulWidget{
 class _MyHome extends State<MyHome>{
   late Future<List<Poster>> _futurePoster;
   @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    _futurePoster = fetchPosters(http.Client());
+  }
+  @override
   void initState() {
     super.initState();
     _futurePoster = fetchPosters(http.Client());
@@ -42,10 +48,10 @@ class _MyHome extends State<MyHome>{
                   padding: EdgeInsets.all(20) ,
                   child: DataTable(
                     columns: [
-                      DataColumn(label: Text('userId')),
-                      DataColumn(label: Text('id')),
-                      DataColumn(label: Text('title')),
-                      DataColumn(label: Text('content')),
+                      DataColumn(label: Text('userIds')),
+                      DataColumn(label: Text('ids')),
+                      DataColumn(label: Text('titles')),
+                      DataColumn(label: Text('contents')),
                     ],
                     rows: List<DataRow>.generate(
                       abc.data!.length,
